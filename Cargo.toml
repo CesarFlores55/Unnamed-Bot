@@ -1,0 +1,15 @@
+[package]
+name = "unamed-bot"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenv = "0.15"
+tokio = { version = "1.21.2", features = ["full"] }
+poise = "0.6"
+# songbird = "0.4"
+
+[dependencies.serenity]
+version = "0.12"
