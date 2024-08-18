@@ -1,7 +1,5 @@
 use poise::serenity_prelude as serenity;
-pub struct Data {} // User data, which is stored and accessible in all command invocations
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
+use unamed_bot::types::{Error, Context};
 
 #[poise::command(slash_command, prefix_command)]
 pub async fn age(

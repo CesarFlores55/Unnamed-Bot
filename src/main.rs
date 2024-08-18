@@ -3,6 +3,7 @@ use dotenv::dotenv;
 use std::env;
 
 mod commands;
+use unamed_bot::types::Data;
 use crate::commands::age::age;
 
 #[tokio::main]
@@ -20,7 +21,7 @@ async fn main() {
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(commands::age::Data {})
+                Ok(Data {})
             })
         })
         .build();
