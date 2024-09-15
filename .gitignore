@@ -2,4 +2,3 @@
 /src/old
 .env
 *.lock
-Cargo.lock
