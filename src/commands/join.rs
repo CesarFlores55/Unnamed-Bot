@@ -1,8 +1,7 @@
-// slash command to join a voice channel if the user is in one, if not return a error message
-
 use unnamed_bot::types::{Context, Error};
 
-#[poise::command(slash_command, prefix_command)]
+/// Tell the bot to join the voice channel
+#[poise::command(slash_command, prefix_command, description_localized("es-ES", "Haz que el bot se una al canal de voz"))]
 pub async fn join(ctx: Context<'_>) -> Result<(), Error> {
     let (guild_id, channel_id) = {
         let guild = ctx.guild().ok_or("guild not found")?;

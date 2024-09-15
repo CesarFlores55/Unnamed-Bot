@@ -1,12 +1,20 @@
-// slash command that executes a system command(yt-dlp) and returns the output, expects an url(youtube) as argument
-// the args for yt-dlp are -j -f ba[abr>0][vcodec=none]/best --no-playlist
+use songbird::input::{
+    // HlsRequest,
+    Input,
+    // YoutubeDl as YoutubeDLP,
+};
 
-use serde_json::Value;
-use songbird::input::Input;
+// use reqwest::Client;
+use std::time::Instant;
 use tokio::time::{timeout, Duration};
 use unnamed_bot::types::{Context, Error};
 
-#[poise::command(slash_command, prefix_command)]
+/// accepts a youtube url and plays the audio
+#[poise::command(
+    slash_command,
+    prefix_command,
+    description_localized("es-ES", "acepta un url de youtube y reproduce el audio")
+)]
 pub async fn play(
     ctx: Context<'_>,
     #[description = "Youtube url"] url: String,
@@ -28,7 +36,6 @@ pub async fn play(
     ctx.defer().await?;
 
     let ytdl_args = [
-        "-j",
         "-f",
         "ba[abr>0][vcodec=none]/best",
         "--no-playlist",
@@ -39,6 +46,8 @@ pub async fn play(
         "-",
         &url,
     ];
+
+    let start_time = Instant::now();
 
     let output = timeout(
         Duration::from_secs(30),
@@ -73,23 +82,7 @@ pub async fn play(
         )));
     }
 
-    // Verificar si la salida está vacía
-    if output.stdout.is_empty() {
-        log::error!("yt-dlp output is empty");
-        return Err(Error::from("yt-dlp output is empty"));
-    }
-
-    // Parsear la salida JSON para extraer el título
-    let stdout = std::str::from_utf8(&output.stdout[..]).unwrap_or("{}");
-    let json: Value = serde_json::from_str(stdout).map_err(|e| {
-        log::error!("Failed to parse yt-dlp output as JSON: {}", e);
-        Error::from("Failed to parse yt-dlp output as JSON")
-    })?;
-    let title = json["title"].as_str().unwrap_or("Unknown title");
-
     let audio_data = output.stdout;
-    log::info!("Downloaded audio data size: {} bytes", audio_data.len());
-
     let manager = songbird::get(ctx.serenity_context())
         .await
         .ok_or("Songbird Voice client not initialized")?
@@ -99,11 +92,19 @@ pub async fn play(
 
     match handler {
         Ok(handler) => {
-            let mut handler = handler.lock().await;
+            let mut handler_lock = handler.lock().await;
             let source = Input::from(audio_data);
-            handler.enqueue_input(source).await;
+            handler_lock.enqueue_input(source).await;
 
-            ctx.say(format!("Playing: {}", title)).await.map_err(|e| {
+            let elapsed = start_time.elapsed();
+            log::info!("yt-dlp executed in {:?}", elapsed);
+
+            ctx.say(format!(
+                "added to queue, position: {}",
+                handler_lock.queue().len()
+            ))
+            .await
+            .map_err(|e| {
                 log::error!("Failed to send message: {}", e);
                 e
             })?;
@@ -116,6 +117,66 @@ pub async fn play(
             return Err(Box::new(e) as Error);
         }
     }
+
+    // // Verificar si la salida está vacía
+    // if output.stdout.is_empty() {
+    //     log::error!("yt-dlp output is empty");
+    //     return Err(Error::from("yt-dlp output is empty"));
+    // }
+
+    // let audio_data = output.stdout;
+    // log::info!("Downloaded audio data size: {} bytes", audio_data.len());
+
+    // let mut child = Command::new("yt-dlp")
+    // .args(&ytdl_args)
+    // .stdout(std::process::Stdio::piped())
+    // .spawn()
+    // .map_err(|e| {
+    //     log::error!("Failed to execute yt-dlp: {}", e);
+    //     if e.kind() == std::io::ErrorKind::NotFound {
+    //         Error::from("could not find executable 'yt-dlp' on path")
+    //     } else {
+    //         Error::from(e)
+    //     }
+    // })?;
+
+    // let stdout = child.stdout.take().ok_or("Failed to capture stdout")?;
+
+    // let manager = songbird::get(ctx.serenity_context())
+    //     .await
+    //     .ok_or("Songbird Voice client not initialized")?
+    //     .clone();
+
+    // let handler = manager.join(guild_id, channel_id).await;
+
+    // match handler {
+    //     Ok(handler) => {
+    //         let mut handler_lock = handler.lock().await;
+
+    //         let start_time = Instant::now();
+
+    //         let src = YoutubeDLP::new(Client::new(), url.clone());
+
+    //         handler_lock.enqueue_input(src.into()).await;
+
+    //         let elapsed = start_time.elapsed();
+    //         log::info!("Enqueued audio in {:?}", elapsed);
+
+    //         ctx.say(format!("added to queue, position: {}", handler_lock.queue().len()))
+    //             .await
+    //             .map_err(|e| {
+    //                 log::error!("Failed to send message: {}", e);
+    //                 e
+    //             })?;
+    //     }
+    //     Err(e) => {
+    //         ctx.say("Failed to join voice channel").await.map_err(|e| {
+    //             log::error!("Failed to send message: {}", e);
+    //             e
+    //         })?;
+    //         return Err(Box::new(e) as Error);
+    //     }
+    // }
 
     Ok(())
 }

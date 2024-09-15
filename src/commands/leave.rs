@@ -1,7 +1,7 @@
-//slash command to leave the voice channel if the bot is in one, if not return a error message
 use unnamed_bot::types::{Context, Error};
 
-#[poise::command(slash_command, prefix_command, description_localized("en-US","Leave the voice channel"))]
+/// Leave the voice channel
+#[poise::command(slash_command, prefix_command, description_localized("es-ES","abanadona el canal de voz"))]
 pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild_id().ok_or("guild not found")?;
 
