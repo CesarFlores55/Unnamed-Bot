@@ -1,4 +1,5 @@
 /target
+/src/old
 .env
 *.lock
 Cargo.lock
