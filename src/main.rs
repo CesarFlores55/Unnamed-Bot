@@ -6,7 +6,7 @@ use std::{
 };
 
 mod commands;
-use crate::commands::{join, leave, play, stop};
+use crate::commands::{join, leave, play, skip, stop};
 use unnamed_bot::types::Data;
 
 #[tokio::main]
@@ -21,7 +21,13 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![play::play(), join::join(), leave::leave(), stop::stop()],
+            commands: vec![
+                play::play(),
+                join::join(),
+                leave::leave(),
+                skip::skip(),
+                stop::stop(),
+            ],
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some("!!".to_string()),
                 ..Default::default()
