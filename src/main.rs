@@ -12,7 +12,7 @@ use unnamed_bot::types::Data;
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-    dotenv::dotenv().ok();
+    dotenvy::from_path(".env").ok();
 
     let token = env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
     let intents = serenity_prelude::GatewayIntents::non_privileged()

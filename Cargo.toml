@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dotenv = "0.15"
+dotenvy = "0.15.7"
 tokio = { version = "1.21.2", features = ["full"] }
 poise = "0.6"
 songbird = {version = "0.4", default-features = true, features = ["serenity", "builtin-queue"] }
-reqwest = "0.11"
+reqwest = "0.12.7"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tracing-futures = "0.2"
