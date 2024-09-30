@@ -2,3 +2,4 @@
 /src/old
 .env
 *.lock
+cookies.txt

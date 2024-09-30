@@ -35,7 +35,16 @@ pub async fn play(
 
     ctx.defer().await?;
 
+    // check if cookie file exists
+    if !std::path::Path::new("cookies.txt").exists() {
+        return Err("cookies.txt not found".into());
+    } else {
+        log::info!("cookies.txt found");
+    }
+    
     let ytdl_args = [
+        "--cookies",
+        "cookies.txt",
         "-f",
         "ba[abr>0][vcodec=none]/best",
         "--no-playlist",
