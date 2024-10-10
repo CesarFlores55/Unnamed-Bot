@@ -8,6 +8,7 @@ use songbird::input::{
 use std::time::Instant;
 use tokio::time::{timeout, Duration};
 use unnamed_bot::types::{Context, Error};
+use std::env;
 
 /// accepts a youtube url and plays the audio
 #[poise::command(
@@ -41,18 +42,19 @@ pub async fn play(
     } else {
         log::info!("cookies.txt found");
     }
+
+    let youtube_username: String = env::var("YT_USERNAME").expect("YT_USERNAME isn't configure");
+    let youtube_password: String = env::var("YT_PASSWORD").expect("YT_PASSWORD isn't configure");
     
-    let ytdl_args = [
-        "--cookies",
-        "cookies.txt",
-        "-f",
-        "ba[abr>0][vcodec=none]/best",
+    let ytdl_args: [&str; 15] = [
+        "--cookies", "cookies.txt",
+        "--username", &youtube_username,
+        "--password", &youtube_password, 
+        "-f", "ba[abr>0][vcodec=none]/best",
         "--no-playlist",
         "--extract-audio",
-        "--audio-format",
-        "opus",
-        "-o",
-        "-",
+        "--audio-format", "opus",
+        "-o", "-",
         &url,
     ];
 
